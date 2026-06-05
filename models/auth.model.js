@@ -1,30 +1,37 @@
 import mongoose from "mongoose";
-import { hashPassword, comparePassword, changedPasswordAfter } from "../utils/password.utils.js";
-const authSchema = new mongoose.Schema({
+import {
+  hashPassword,
+  comparePassword,
+  changedPasswordAfter,
+} from "../utils/password.utils.js";
+
+const authSchema = new mongoose.Schema(
+  {
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true,
-        lowercase: true,
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
     },
     password: {
-        type: String,
-        required: true,
-        select: false, // Security: Prevents the password from being returned in queries by default
+      type: String,
+      required: true,
+      select: false, // Security: Prevents the password from being returned in queries by default
     },
     role: {
-        type: String,
-        enum: ["user", "admin"],
-        default: "user",
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
     },
     passwordChangedAt: {
-        type: Date
+      type: Date,
     },
     passwordResetToken: String,
     passwordResetExpires: Date,
-
-}, { timestamps: true });
+  },
+  { timestamps: true },
+);
 
 // 1. Pre-Save Middleware: Hashes the password before saving to DB
 authSchema.pre("save", hashPassword);
@@ -36,18 +43,18 @@ authSchema.methods.comparePassword = comparePassword;
 authSchema.methods.changedPasswordAfter = changedPasswordAfter;
 
 // 4. Security: Ensure password is never sent in API responses
-authSchema.set('toJSON', {
-    transform: function (doc, ret) {
-        delete ret.password;
-        return ret;
-    }
+authSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret.__v;
+    return ret;
+  },
 });
 
-authSchema.set('toObject', {
-    transform: function (doc, ret) {
-        delete ret.password;
-        return ret;
-    }
+authSchema.set("toObject", {
+  transform: function (doc, ret) {
+    delete ret.__v;
+    return ret;
+  },
 });
 
 export const Auth = mongoose.model("Auth", authSchema);

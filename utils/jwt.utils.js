@@ -2,10 +2,10 @@ import { SignJWT, jwtVerify } from "jose";
 import { JWT_CONFIG } from "../config/configs.variables.js";
 
 export const generateToken = async (user) => {
-  const payload = {
-    user_id: user.id,
-    user_email: user.email,
-  };
+  const payload = Object.entries(JWT_CONFIG.jwt_payload).reduce((acc, [tokenKey, userProp]) => {
+    acc[tokenKey] = user[userProp];
+    return acc;
+  }, {});
 
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: JWT_CONFIG.jwt_algorithm })
@@ -17,15 +17,11 @@ export const generateToken = async (user) => {
 };
 
 export const verifyToken = async (token) => {
-  try {
-    const { payload } = await jwtVerify(token, JWT_CONFIG.jwt_secret_encoded, {
-      issuer: JWT_CONFIG.jwt_issuer,
-      audience: JWT_CONFIG.jwt_audience,
-      algorithms: [JWT_CONFIG.jwt_algorithm],
-    });
+  const { payload } = await jwtVerify(token, JWT_CONFIG.jwt_secret_encoded, {
+    issuer: JWT_CONFIG.jwt_issuer,
+    audience: JWT_CONFIG.jwt_audience,
+    algorithms: [JWT_CONFIG.jwt_algorithm],
+  });
 
-    return payload;
-  } catch (error) {
-    throw new Error("Invalid token");
-  }
+  return payload;
 };
