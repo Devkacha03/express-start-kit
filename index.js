@@ -13,7 +13,10 @@ import morgan from "morgan";
 const app = express();
 
 app.use(express.json()); //middleware for parsing json bodies
-app.use(morgan("dev")); // more detailed logging than console.log
+
+if (APP_CONFIG.node_env === "production")
+  app.use(morgan("combined")); // Standard Apache combined log output
+else app.use(morgan("dev"));
 
 app.get("/", (request, response) => {
   console.log(request.url);
