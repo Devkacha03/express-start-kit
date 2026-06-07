@@ -15,11 +15,6 @@ export const requireAuth = async (req, res, next) => {
 
     // 2. Check if user still exists
     const currentUser = await getUserById(decoded.user_id);
-    if (!currentUser) {
-      return res
-        .status(401)
-        .json({ error: "The user belonging to this token no longer exists" });
-    }
 
     // 3. Check if user changed password after the token was issued
     if (decoded.iat && currentUser.changedPasswordAfter(decoded.iat))

@@ -19,8 +19,7 @@ if (APP_CONFIG.node_env === "production")
 else app.use(morgan("dev"));
 
 app.get("/", (request, response) => {
-  console.log(request.url);
-  response.send("server running successfully");
+  response.send("server running");
 });
 
 app.use("/auth", authRouter);
